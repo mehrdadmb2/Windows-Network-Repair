@@ -1,0 +1,73 @@
+name: Build Windows EXE and publish release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build single-file Windows executable
+    runs-on: windows-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Validate PowerShell syntax
+        shell: powershell
+        run: |
+          $files = Get-ChildItem -Path . -Recurse -File -Include *.ps1,*.psm1
+          $failed = $false
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$tokens, [ref]$errors) | Out-Null
+            foreach ($parseError in $errors) {
+              Write-Error ("{0}:{1}:{2} {3}" -f $file.FullName,$parseError.Extent.StartLineNumber,$parseError.Extent.StartColumnNumber,$parseError.Message)
+              $failed = $true
+            }
+          }
+          if ($failed) { throw 'PowerShell syntax validation failed.' }
+
+      - name: Setup Node for dashboard checks
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate dashboard JavaScript
+        shell: pwsh
+        run: node --check docs/assets/app.js
+
+      - name: Build EXE
+        shell: powershell
+        run: |
+          $tag = '${{ github.ref_name }}'
+          if ($tag -match '^v?(\d+\.\d+\.\d+)$') { $version = "$($Matches[1]).0" } else { $version = '2.0.0.0' }
+          ./Build/Build-Executable.ps1 -OutputPath ./dist -Version $version
+
+      - name: Package source code
+        shell: powershell
+        run: |
+          $items = Get-ChildItem -Force | Where-Object { $_.Name -notin @('.git','dist') }
+          Compress-Archive -Path $items.FullName -DestinationPath ./dist/WindowsNetworkRepair-source.zip -CompressionLevel Optimal
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WindowsNetworkRepair-${{ github.ref_name }}
+          path: dist/*
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Windows Network Repair Pro ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            dist/WindowsNetworkRepair.exe
+            dist/WindowsNetworkRepair-source.zip

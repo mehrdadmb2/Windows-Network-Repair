@@ -1,0 +1,55 @@
+1 : 
+
+Win + R : ncpa.cpl -> Ethernet
+
+Disable Client for Microsoft Networks
+
+2 : 
+
+Win + R : gpedit.msc
+
+Computer Configuration
+    -> Administrative Templates
+        -> Network
+            -> Lanman Workstation
+                -> Enable insecure guest logons
+                    -> Enabled
+3 : 
+
+Win + R : gpedit.msc
+
+Windows Settings
+    -> Security Settings
+        -> Local Policies
+            -> Security Options
+
+Microsoft network client:
+Digitally sign communications (always)
+    -> Disabled
+
+Microsoft Network Client:
+Digitally sign communications
+(if server agrees)
+    -> Disabled
+
+4 : 
+
+Turn on SMB
+
+5 : 
+
+Win + R
+
+regedit
+
+HKEY_LOCAL_MACHINE
+
+System
+    \CurrentControlSet
+        \Services
+            \LanmanWorkstation
+                \Parameters
+
+New -> DWORD
+
+AllowInsecureGuestAuth = 1

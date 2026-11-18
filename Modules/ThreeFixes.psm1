@@ -1,4 +1,4 @@
-﻿function Get-BindingSnapshot {
+function Get-BindingSnapshot {
     if (Get-Command Get-NetAdapterBinding -ErrorAction SilentlyContinue) {
         try {
             return @(Get-NetAdapterBinding -ComponentID 'ms_msclient' -ErrorAction Stop | Select-Object Name,Enabled,Status,DisplayName,ComponentID)

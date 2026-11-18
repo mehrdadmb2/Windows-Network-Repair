@@ -1,9 +1,9 @@
-# راهنمای جایگزینی و انتشار نسخه 2.0.1
+# راهنمای جایگزینی و انتشار نسخه 2.0.2
 
 ## ۱) جایگزینی فایل‌های مخزن
 
 1. فایل ZIP این بسته را Extract کنید.
-2. وارد پوشه `Windows-Network-Repair-Pro-v2.0.1` شوید.
+2. وارد پوشه `Windows-Network-Repair-Pro-v2.0.2` شوید.
 3. تمام محتویات داخل آن، از جمله پوشه مخفی/نقطه‌ای `.github`، را در ریشه مخزن `mehrdadmb2/Windows-Network-Repair` کپی و فایل‌های قبلی را جایگزین کنید.
 4. هنگام کپی، حذف فایل‌های قدیمی را هم تأیید کنید؛ نسخه جدید فایل ZIP قدیمیِ تودرتو و Log نمونه را نگه نمی‌دارد.
 
@@ -20,7 +20,7 @@ git push origin main
 1. در GitHub مخزن را باز کنید و وارد تب **Actions** شوید.
 2. Workflow با نام **Build Windows EXE and publish release** را انتخاب کنید.
 3. روی **Run workflow** بزنید و Branch را روی `main` قرار دهید.
-4. مقدار `release_tag` را `v2.0.1` بگذارید.
+4. مقدار `release_tag` را `v2.0.2` بگذارید.
 5. برای نسخه پایدار، گزینه `prerelease` را خاموش نگه دارید.
 6. دوباره **Run workflow** را بزنید.
 
@@ -28,7 +28,7 @@ git push origin main
 
 ## ۳) فایل‌هایی که باید در Release دیده شوند
 
-در صفحه Releases و زیر Assets نسخه `v2.0.1` باید دقیقاً این خروجی‌ها موجود باشند:
+در صفحه Releases و زیر Assets نسخه `v2.0.2` باید دقیقاً این خروجی‌ها موجود باشند:
 
 - `WindowsNetworkRepair.exe`
 - `WindowsNetworkRepair-source.zip`
@@ -42,8 +42,8 @@ Artifact قابل دانلود در صفحه اجرای Actions نسخه پشت�
 روش جایگزین این است که پس از Push سورس، Tag جدید بسازید و Push کنید:
 
 ```bash
-git tag v2.0.1
-git push origin v2.0.1
+git tag v2.0.2
+git push origin v2.0.2
 ```
 
 از یکی از دو روش استفاده کنید: اجرای دستی Workflow یا Push کردن Tag. هر دو همزمان لازم نیستند.
@@ -68,8 +68,8 @@ git push origin v2.0.1
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass -Force
-.\Build\Build-Executable.ps1 -OutputPath .\dist -Version '2.0.1.0'
-.\Build\Prepare-Release.ps1 -SourceRoot . -OutputPath .\dist -Version '2.0.1' -Tag 'v2.0.1' -CommitSha 'local-build'
+.\Build\Build-Executable.ps1 -OutputPath .\dist -Version '2.0.2.0'
+.\Build\Prepare-Release.ps1 -SourceRoot . -OutputPath .\dist -Version '2.0.2' -Tag 'v2.0.2' -CommitSha 'local-build'
 ```
 
 خروجی EXE باید فایل `dist\WindowsNetworkRepair.exe` به‌تنهایی باشد؛ فایل `WindowsNetworkRepair.exe.config` نباید در کنار آن تولید شود.

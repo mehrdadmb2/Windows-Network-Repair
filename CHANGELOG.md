@@ -1,4 +1,12 @@
-﻿# Changelog
+# Changelog
+
+## 2.0.2 — 2026-11-18
+
+- Fixed a false GitHub Actions failure after a successful PS2EXE compile: the workflow no longer checks the stale `$LASTEXITCODE` value after invoking PowerShell scripts.
+- Kept `$LASTEXITCODE` checks only immediately after native commands such as Git and Node.js, where that variable is meaningful.
+- Added independent post-build validation of the EXE file, minimum size and absence of a `.config` sidecar inside the workflow.
+- Added independent post-packaging checks for all release files and for version/tag consistency in `release-manifest.json`.
+- Updated package, in-app report and release guide version references to `2.0.2`.
 
 ## 2.0.1 — 2026-11-18
 

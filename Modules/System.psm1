@@ -1,4 +1,4 @@
-﻿function Get-WmiOrCim {
+function Get-WmiOrCim {
     param([Parameter(Mandatory=$true)][string]$Class,[string]$Namespace='root/cimv2')
     # Try CIM first, but do not let a class/provider error block the legacy WMI fallback.
     if (Get-Command Get-CimInstance -ErrorAction SilentlyContinue) {

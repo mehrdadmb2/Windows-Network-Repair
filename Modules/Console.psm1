@@ -1,4 +1,4 @@
-﻿function Write-Title {
+function Write-Title {
     param([Parameter(Mandatory=$true)][string]$Text)
     $width = 78
     $line = ('-' * $width)

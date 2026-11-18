@@ -1,4 +1,4 @@
-﻿#requires -Version 3.0
+#requires -Version 3.0
 $ErrorActionPreference = 'Stop'
 $primaryDataRoot = if ($env:ProgramData) { Join-Path $env:ProgramData 'WindowsNetworkRepairPro' } else { $null }
 $fallbackDataRoot = Join-Path $PSScriptRoot 'Data'

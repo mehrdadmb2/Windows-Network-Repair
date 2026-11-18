@@ -1,4 +1,4 @@
-﻿# Windows Network Repair Pro 2.0.1
+# Windows Network Repair Pro 2.0.2
 
 ابزار تشخیص، اصلاح و مانیتورینگ تنظیمات سازگاری SMB در ویندوز؛ با پشتیبان‌گیری قبل از تغییر، راستی‌آزمایی بعد از تغییر و داشبورد GitHub Pages برای مشاهده گزارش واقعی سیستم.
 
@@ -143,7 +143,7 @@ Workflow هم با Push شدن Tag و هم با اجرای دستی از تب Ac
 1. ابتدا تغییرات پروژه را روی شاخهٔ `main` Push کنید.
 2. در مخزن به `Actions → Build Windows EXE and publish release` بروید.
 3. روی `Run workflow` کلیک کنید و شاخهٔ `main` را انتخاب کنید.
-4. در ورودی `release_tag` یک نسخهٔ جدید وارد کنید؛ برای این بسته مقدار پیشنهادی `v2.0.1` است. ورودی `prerelease` را برای انتشار پایدار خاموش بگذارید.
+4. در ورودی `release_tag` یک نسخهٔ جدید وارد کنید؛ برای این بسته مقدار پیشنهادی `v2.0.2` است. ورودی `prerelease` را برای انتشار پایدار خاموش بگذارید.
 5. روی `Run workflow` بزنید. Workflow خودش Tag و Release را ایجاد می‌کند یا Release همان Tag را به‌روزرسانی می‌کند.
 6. در پایان مرحلهٔ `Verify that GitHub Release actually contains every asset` باید موفق شود. فقط در این صورت انتشار نهایی تأیید شده است.
 
@@ -159,8 +159,8 @@ Workflow هم با Push شدن Tag و هم با اجرای دستی از تب Ac
 پس از Push کردن سورس، می‌توانید به‌جای اجرای دستی، Tag نسخه را Push کنید:
 
 ```bash
-git tag v2.0.1
-git push origin v2.0.1
+git tag v2.0.2
+git push origin v2.0.2
 ```
 
 Tag باید از الگوی `vMAJOR.MINOR.PATCH` پیروی کند؛ برای نسخه‌های آزمایشی از پسوندی مثل `-rc.1` استفاده کنید. اگر Tag از قبل وجود داشته باشد اما به Commit دیگری اشاره کند، Workflow عمداً متوقف می‌شود تا فایل اجرایی یک Commit به اشتباه زیر نسخهٔ Commit دیگری منتشر نشود. برای انتشار تغییرات جدید، شمارهٔ نسخهٔ جدید انتخاب کنید.
@@ -173,7 +173,7 @@ Windows PowerShell 5.1 را باز کنید، وارد پوشهٔ پروژه ش�
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass -Force
-.\Build\Build-Executable.ps1 -OutputPath .\dist -Version '2.0.1.0'
+.\Build\Build-Executable.ps1 -OutputPath .\dist -Version '2.0.2.0'
 ```
 
 فایل خروجی:
@@ -205,4 +205,4 @@ EXE تمام اسکریپت و ماژول‌های همین پروژه را در
 
 ## نسخه
 
-`2.0.1` — 2026-11-18
+`2.0.2` — 2026-11-18

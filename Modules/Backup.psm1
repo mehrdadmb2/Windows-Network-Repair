@@ -1,4 +1,4 @@
-﻿function New-RepairBackup {
+function New-RepairBackup {
     param([Parameter(Mandatory=$true)][string]$Root,[object]$BindingSnapshot)
     $stamp = Get-Date -Format 'yyyyMMdd_HHmmss_fff'
     $dir = Join-Path $Root ('Backup\Backup_' + $stamp)

@@ -1,4 +1,4 @@
-﻿$script:LogFile = $null
+$script:LogFile = $null
 
 function Initialize-RepairLog {
     param([Parameter(Mandatory=$true)][string]$Path)

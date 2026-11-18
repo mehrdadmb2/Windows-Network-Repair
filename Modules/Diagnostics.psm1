@@ -1,4 +1,4 @@
-﻿function Get-ServiceStateSafe {
+function Get-ServiceStateSafe {
     param([Parameter(Mandatory=$true)][string]$Name)
     try {
         $s = Get-Service -Name $Name -ErrorAction Stop

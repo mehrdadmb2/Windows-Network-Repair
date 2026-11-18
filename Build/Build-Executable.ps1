@@ -1,8 +1,8 @@
-﻿#requires -Version 5.1
+#requires -Version 5.1
 [CmdletBinding()]
 param(
     [string]$OutputPath = (Join-Path (Split-Path -Parent $PSScriptRoot) 'dist'),
-    [string]$Version = '2.0.1.0'
+    [string]$Version = '2.0.2.0'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -71,7 +71,7 @@ foreach ($name in $moduleOrder) {
 }
 
 if ($Version -notmatch '^\d+\.\d+\.\d+\.\d+$') {
-    throw 'Version must use four numeric parts, for example 2.0.1.0.'
+    throw 'Version must use four numeric parts, for example 2.0.2.0.'
 }
 
 $OutputPath = [System.IO.Path]::GetFullPath($OutputPath)
@@ -183,6 +183,7 @@ try {
     Write-Host ("Build complete: {0}" -f $builtFile.FullName) -ForegroundColor Green
     Write-Host ("Size: {0:N2} MB | Version: {1} | Architecture: AnyCPU" -f ($builtFile.Length / 1MB), $Version) -ForegroundColor Green
     Write-Host 'Verified: valid PE executable, bundled project modules, and no required .config sidecar.' -ForegroundColor Green
+    Write-Host 'Build script completed successfully.' -ForegroundColor Green
 }
 finally {
     if (Test-Path -LiteralPath $bundlePath) {

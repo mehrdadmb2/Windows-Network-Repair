@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: 'Release tag to create or update (example: v2.0.1)'
+        description: 'Release tag to create or update (example: v2.0.2)'
         required: true
         type: string
-        default: 'v2.0.1'
+        default: 'v2.0.2'
       prerelease:
         description: 'Mark this release as a prerelease'
         required: false
@@ -62,7 +62,7 @@ jobs:
               '^v(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(?<suffix>-[0-9A-Za-z][0-9A-Za-z.-]*)?$'
           )
           if (-not $match.Success) {
-              throw "Invalid release tag '$tag'. Use vMAJOR.MINOR.PATCH, for example v2.0.1 or v2.1.0-rc.1."
+              throw "Invalid release tag '$tag'. Use vMAJOR.MINOR.PATCH, for example v2.0.2 or v2.1.0-rc.1."
           }
 
           # Refuse to silently attach binaries built from one commit to a tag that points elsewhere.
@@ -123,8 +123,32 @@ jobs:
           APP_VERSION: ${{ steps.release-meta.outputs.version }}
         run: |
           $ErrorActionPreference = 'Stop'
-          ./Build/Build-Executable.ps1 -OutputPath (Join-Path $env:GITHUB_WORKSPACE 'dist') -Version $env:APP_VERSION
-          if ($LASTEXITCODE -ne 0) { throw 'Executable build script returned a non-zero exit code.' }
+          $distPath = Join-Path $env:GITHUB_WORKSPACE 'dist'
+          $buildScript = Join-Path $env:GITHUB_WORKSPACE 'Build/Build-Executable.ps1'
+
+          # A PowerShell script is not a native process. Do not inspect $LASTEXITCODE here:
+          # PS2EXE may invoke a native compiler internally and leave that variable non-zero
+          # even when the executable was built and verified successfully.
+          try {
+              & $buildScript -OutputPath $distPath -Version $env:APP_VERSION
+          }
+          catch {
+              throw ('Executable build failed: ' + $_.Exception.Message)
+          }
+
+          # The build script throws on failure. Independently verify the deliverable here.
+          $exePath = Join-Path $distPath 'WindowsNetworkRepair.exe'
+          if (-not (Test-Path -LiteralPath $exePath -PathType Leaf)) {
+              throw 'Build script returned without creating WindowsNetworkRepair.exe.'
+          }
+          $exeInfo = Get-Item -LiteralPath $exePath
+          if ($exeInfo.Length -lt 50000) {
+              throw ('EXE output is unexpectedly small: {0} bytes.' -f $exeInfo.Length)
+          }
+          if (Test-Path -LiteralPath ($exePath + '.config')) {
+              throw 'A .config sidecar was generated; refusing a non-single-file executable package.'
+          }
+          Write-Host ('EXE build step verified: {0:N0} bytes.' -f $exeInfo.Length) -ForegroundColor Green
 
       - name: Prepare source archive, manifest and checksums
         env:
@@ -133,13 +157,43 @@ jobs:
           COMMIT_SHA: ${{ github.sha }}
         run: |
           $ErrorActionPreference = 'Stop'
-          ./Build/Prepare-Release.ps1 `
-            -SourceRoot $env:GITHUB_WORKSPACE `
-            -OutputPath (Join-Path $env:GITHUB_WORKSPACE 'dist') `
-            -Version $env:APP_VERSION `
-            -Tag $env:RELEASE_TAG `
-            -CommitSha $env:COMMIT_SHA
-          if ($LASTEXITCODE -ne 0) { throw 'Release packaging returned a non-zero exit code.' }
+          $distPath = Join-Path $env:GITHUB_WORKSPACE 'dist'
+          $prepareScript = Join-Path $env:GITHUB_WORKSPACE 'Build/Prepare-Release.ps1'
+
+          # As above, this is a PowerShell script, not a native executable.
+          try {
+              & $prepareScript `
+                -SourceRoot $env:GITHUB_WORKSPACE `
+                -OutputPath $distPath `
+                -Version $env:APP_VERSION `
+                -Tag $env:RELEASE_TAG `
+                -CommitSha $env:COMMIT_SHA
+          }
+          catch {
+              throw ('Release packaging failed: ' + $_.Exception.Message)
+          }
+
+          $requiredPackageFiles = @(
+              'WindowsNetworkRepair.exe',
+              'WindowsNetworkRepair-source.zip',
+              'release-manifest.json',
+              'SHA256SUMS.txt'
+          )
+          foreach ($name in $requiredPackageFiles) {
+              $path = Join-Path $distPath $name
+              if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+                  throw ('Release packaging did not create required file: ' + $name)
+              }
+              if ((Get-Item -LiteralPath $path).Length -le 0) {
+                  throw ('Release packaging created an empty file: ' + $name)
+              }
+          }
+
+          $manifest = Get-Content -LiteralPath (Join-Path $distPath 'release-manifest.json') -Raw | ConvertFrom-Json
+          if ($manifest.version -ne $env:APP_VERSION -or $manifest.tag -ne $env:RELEASE_TAG) {
+              throw 'Release manifest version/tag does not match the current workflow inputs.'
+          }
+          Write-Host 'Release package verified. All four files and manifest metadata are valid.' -ForegroundColor Green
 
       - name: Verify release payload before upload
         run: |

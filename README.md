@@ -1,10 +1,10 @@
-# Windows Network Repair Pro 2.0
+﻿# Windows Network Repair Pro 2.0.1
 
 ابزار تشخیص، اصلاح و مانیتورینگ تنظیمات سازگاری SMB در ویندوز؛ با پشتیبان‌گیری قبل از تغییر، راستی‌آزمایی بعد از تغییر و داشبورد GitHub Pages برای مشاهده گزارش واقعی سیستم.
 
 > **هشدار امنیتی:** این پروژه برای سناریوهای محدودِ سازگاری با NAS یا دستگاه‌های قدیمی طراحی شده است. فعال‌کردن ورود Guest بدون احراز هویت و کاهش SMB signing می‌تواند امنیت ارتباط و داده‌ها را کاهش دهد. فقط در شبکه مورد اعتماد و زمانی اجرا کنید که واقعاً لازم است. مستندات Microsoft: [SMB insecure guest logons](https://learn.microsoft.com/en-us/windows-server/storage/file-server/enable-insecure-guest-logons-smb2-and-smb3) و [SMB signing](https://learn.microsoft.com/en-us/windows-server/storage/file-server/smb-signing-overview).
 
-## مهم‌ترین تغییر نسخه 2.0
+## مهم‌ترین تغییرات نسخه 2.0
 
 **گزینهٔ ۳، مسیر اصلی برنامه است.** با فشردن Enter در منوی اصلی نیز همین گزینه انتخاب می‌شود. این مسیر:
 
@@ -48,7 +48,8 @@
 │   ├── ThreeFixes.psm1
 │   └── Diagnostics.psm1
 ├── Build/
-│   └── Build-Executable.ps1
+│   ├── Build-Executable.ps1
+│   └── Prepare-Release.ps1
 ├── assets/
 │   └── WindowsNetworkRepair.ico
 ├── docs/
@@ -58,9 +59,11 @@
 │       ├── config.js
 │       ├── styles.css
 │       └── logo.svg
-└── .github/workflows/
-    ├── build-release.yml
-    └── pages.yml
+└── .github/
+    ├── dependabot.yml
+    └── workflows/
+        ├── build-release.yml
+        └── pages.yml
 ```
 
 ## اجرای برنامه در ویندوز
@@ -131,22 +134,38 @@ window.WNR_CONFIG = {
 
 پروژه شامل Build Script است که سورس ماژول‌ها را در یک فایل موقت ادغام می‌کند و سپس PS2EXE را اجرا می‌کند؛ در نتیجه در کنار فایل خروجی به پوشهٔ `Modules` نیاز نیست.
 
-### روش اول: ساخت خودکار از GitHub Actions (پیشنهادی)
+### روش اول: انتشار خودکار از GitHub Actions (پیشنهادی)
 
-1. سورس را Push کنید.
-2. یک Tag نسخه بسازید و Push کنید:
+Workflow هم با Push شدن Tag و هم با اجرای دستی از تب Actions، فایل اجرایی را می‌سازد و در GitHub Releases منتشر می‌کند. اجرای دستی دیگر فقط Artifact نمی‌سازد.
+
+**انتشار با اجرای دستی (روش ساده‌تر):**
+
+1. ابتدا تغییرات پروژه را روی شاخهٔ `main` Push کنید.
+2. در مخزن به `Actions → Build Windows EXE and publish release` بروید.
+3. روی `Run workflow` کلیک کنید و شاخهٔ `main` را انتخاب کنید.
+4. در ورودی `release_tag` یک نسخهٔ جدید وارد کنید؛ برای این بسته مقدار پیشنهادی `v2.0.1` است. ورودی `prerelease` را برای انتشار پایدار خاموش بگذارید.
+5. روی `Run workflow` بزنید. Workflow خودش Tag و Release را ایجاد می‌کند یا Release همان Tag را به‌روزرسانی می‌کند.
+6. در پایان مرحلهٔ `Verify that GitHub Release actually contains every asset` باید موفق شود. فقط در این صورت انتشار نهایی تأیید شده است.
+
+چهار فایل زیر باید در بخش Assets همان Release ظاهر شوند:
+
+- `WindowsNetworkRepair.exe` — فایل اجرایی تک‌فایلی
+- `WindowsNetworkRepair-source.zip` — سورس کامل و تمیز پروژه
+- `release-manifest.json` — نسخه، Commit، مشخصات خروجی و SHA-256
+- `SHA256SUMS.txt` — چکیدهٔ SHA-256 فایل‌های انتشار
+
+**انتشار با Git Tag:**
+
+پس از Push کردن سورس، می‌توانید به‌جای اجرای دستی، Tag نسخه را Push کنید:
 
 ```bash
-git tag v2.0.0
-git push origin v2.0.0
+git tag v2.0.1
+git push origin v2.0.1
 ```
 
-3. در GitHub به `Actions` بروید و Workflow با نام **Build Windows EXE and publish release** را بررسی کنید.
-4. بعد از موفقیت Workflow، در بخش `Releases` دو فایل خواهید داشت:
-   - `WindowsNetworkRepair.exe`
-   - `WindowsNetworkRepair-source.zip`
+Tag باید از الگوی `vMAJOR.MINOR.PATCH` پیروی کند؛ برای نسخه‌های آزمایشی از پسوندی مثل `-rc.1` استفاده کنید. اگر Tag از قبل وجود داشته باشد اما به Commit دیگری اشاره کند، Workflow عمداً متوقف می‌شود تا فایل اجرایی یک Commit به اشتباه زیر نسخهٔ Commit دیگری منتشر نشود. برای انتشار تغییرات جدید، شمارهٔ نسخهٔ جدید انتخاب کنید.
 
-همچنین اجرای دستی Workflow از تب Actions امکان Build و دریافت Artifact را می‌دهد؛ اما Release عمومی فقط هنگام Push شدن Tag ساخته می‌شود.
+**نکتهٔ عیب‌یابی:** فایل‌های Workflow Artifact در صفحهٔ اجرای Actions با Assets بخش Releases یکسان نیستند. اگر Build موفق باشد اما مرحلهٔ انتشار Skipped یا Failed شود، فایل‌ها ممکن است فقط در قسمت Artifacts همان Run باشند. این نسخه پس از آپلود Release از API گیت‌هاب Assets را دوباره می‌خواند و در صورت نبود هرکدام از چهار فایل، Run را ناموفق می‌کند.
 
 ### روش دوم: ساخت روی ویندوز خودتان
 
@@ -154,7 +173,7 @@ Windows PowerShell 5.1 را باز کنید، وارد پوشهٔ پروژه ش�
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass -Force
-.\Build\Build-Executable.ps1 -OutputPath .\dist -Version '2.0.0.0'
+.\Build\Build-Executable.ps1 -OutputPath .\dist -Version '2.0.1.0'
 ```
 
 فایل خروجی:
@@ -163,7 +182,7 @@ Set-ExecutionPolicy -Scope Process Bypass -Force
 dist\WindowsNetworkRepair.exe
 ```
 
-فایل EXE با آیکون اختصاصی پروژه و اطلاعات نسخه ساخته می‌شود. این Build به‌صورت پیش‌فرض `AnyCPU` است و از PS2EXE استفاده می‌کند؛ نسخهٔ PS2EXE روی `1.0.18` ثابت شده تا خروجی Build بین اجراها قابل‌تکرارتر باشد؛ این نسخه اسکریپت‌های سازگار با PowerShell 5.x را به باینری‌های .NET 4.x تبدیل می‌کند. برای جزئیات گزینه‌های Compile به [مخزن رسمی PS2EXE](https://github.com/MScholtes/PS2EXE) مراجعه کنید. Workflow پیش از Build، Syntax تمام فایل‌های PowerShell و JavaScript داشبورد را نیز بررسی می‌کند.
+فایل EXE با آیکون اختصاصی پروژه و اطلاعات نسخه ساخته می‌شود. این Build به‌صورت پیش‌فرض `AnyCPU` است و از PS2EXE استفاده می‌کند؛ نسخهٔ PS2EXE روی `1.0.18` ثابت شده تا خروجی Build قابل‌پیش‌بینی باشد. گزینهٔ `-longPaths` عمداً استفاده نمی‌شود، چون PS2EXE برای آن فایل جانبی `.exe.config` می‌سازد و با خروجی تک‌فایلی ناسازگار است. پس از Compile، امضای PE و نبود فایل جانبی بررسی می‌شود. برای جزئیات گزینه‌های Compile به [مخزن رسمی PS2EXE](https://github.com/MScholtes/PS2EXE) مراجعه کنید. Workflow پیش از Build، Syntax تمام فایل‌های PowerShell و JavaScript داشبورد را نیز بررسی می‌کند.
 
 ### آیا EXE واقعاً هیچ پیش‌نیازی ندارد؟
 
@@ -186,4 +205,4 @@ EXE تمام اسکریپت و ماژول‌های همین پروژه را در
 
 ## نسخه
 
-`2.0.0` — 2026-11-17
+`2.0.1` — 2026-11-18

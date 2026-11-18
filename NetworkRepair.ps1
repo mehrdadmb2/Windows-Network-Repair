@@ -1,5 +1,5 @@
 ﻿#requires -Version 3.0
-# Windows Network Repair Pro 2.0.0
+# Windows Network Repair Pro 2.0.1
 # Native PowerShell source entry point. Build/Build-Executable.ps1 bundles all modules into one EXE.
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
@@ -71,7 +71,7 @@ function Show-Banner {
     Write-Host '    \_/\_/  |_|_| |_|\__,_|\___/ \_/\_/ |_| \_|\___|\__|_/\_/  ' -ForegroundColor Cyan
     Write-Host ''
     Write-Host '      WINDOWS NETWORK REPAIR PRO  |  SMB COMPATIBILITY + LIVE AUDIT' -ForegroundColor DarkCyan
-    Write-Host ('      Version 2.0.0  |  Log: ' + $LogFile) -ForegroundColor DarkGray
+    Write-Host ('      Version 2.0.1  |  Log: ' + $LogFile) -ForegroundColor DarkGray
     Write-Host ('      Data: ' + $DataRoot) -ForegroundColor DarkGray
     Write-Host ''
 }
@@ -425,7 +425,7 @@ function Apply-MainFixes {
         ReportType = 'ApplyReport'
         SchemaVersion = 2
         Application = 'Windows Network Repair Pro'
-        Version = '2.0.0'
+        Version = '2.0.1'
         GeneratedAt = (Get-Date).ToString('o')
         ComputerName = $env:COMPUTERNAME
         BackupPath = $backup
@@ -632,7 +632,7 @@ function Invoke-StandaloneMonitor {
     $stamp = Get-Date -Format 'yyyyMMdd_HHmmss_fff'
     $path = Join-Path $DataRoot ('Reports\MonitorReport_' + $stamp + '.json')
     $report = [pscustomobject]@{
-        ReportType='MonitorReport'; SchemaVersion=2; Application='Windows Network Repair Pro'; Version='2.0.0'
+        ReportType='MonitorReport'; SchemaVersion=2; Application='Windows Network Repair Pro'; Version='2.0.1'
         GeneratedAt=(Get-Date).ToString('o'); ComputerName=$env:COMPUTERNAME
         DurationSeconds=$duration; IntervalSeconds=$interval
         Before=$before; After=$after; Changes=$changes; MonitorSamples=$samples
@@ -648,7 +648,7 @@ function Generate-Report {
     $stamp = Get-Date -Format 'yyyyMMdd_HHmmss_fff'
     $json = Join-Path $DataRoot ('Reports\DiagnosticReport_' + $stamp + '.json')
     $txt = Join-Path $DataRoot ('Reports\DiagnosticReport_' + $stamp + '.txt')
-    Save-JsonReport -Object ([pscustomobject]@{ ReportType='DiagnosticReport'; SchemaVersion=2; Application='Windows Network Repair Pro'; Version='2.0.0'; GeneratedAt=(Get-Date).ToString('o'); Snapshot=$snapshot }) -Path $json | Out-Null
+    Save-JsonReport -Object ([pscustomobject]@{ ReportType='DiagnosticReport'; SchemaVersion=2; Application='Windows Network Repair Pro'; Version='2.0.1'; GeneratedAt=(Get-Date).ToString('o'); Snapshot=$snapshot }) -Path $json | Out-Null
     $lines = @(
         'Windows Network Repair Pro — Diagnostic Report'
         ('Generated: ' + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz'))

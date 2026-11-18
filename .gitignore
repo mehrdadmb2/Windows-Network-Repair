@@ -1,12 +1,13 @@
 # Runtime data and reports
 Data/
 Backup/
-Logs/*.log
+Logs/
 Reports/
 
 # Build output
 /dist/
 *.exe
+*.exe.config
 *.win32manifest
 
 # Local editor / OS files
@@ -14,3 +15,7 @@ Reports/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Local test/build output
+TestResults/
+*.sha256
